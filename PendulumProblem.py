@@ -24,6 +24,23 @@ def plot_value(vi,pi,state):
 	plt.show(block = False)
 	# plt.pause(10000)
 
+def plot_policy(policy,vi = True):
+	plt.figure()
+	plt.imshow(policy)
+	if vi:
+		plt.title('optimal policy obtained by VI',size = 14)
+	else:
+		plt.title('optimal policy obtained by PI',size = 14)
+	heatmap = plt.pcolor(policy)
+	cbar = plt.colorbar(heatmap)
+	cbar.set_ticks([0,5,10,15,20])
+	cbar.set_ticklabels([-20,-10,0,10,20])
+	plt.xticks([0,30],['-30','30'],size = 12)
+	plt.yticks([0,30],['-Pi','Pi'],size = 12)
+	plt.xlabel('Velocity',size = 12)
+	plt.ylabel('Theta',size = 12)
+	plt.show(block = False)
+
 class EnvAnimate:
 
 	'''
@@ -231,7 +248,7 @@ class EnvAnimate:
 			self.value,self.policy_index = new_value,new_policy
 
 	def policy_evaluation(self):
-		for _ in range(20):
+		for _ in range(30):
 			new_value = np.zeros((self.theta_range,self.v_range))
 			for i in range(self.theta_range):
 				for j in range(self.v_range):
@@ -337,46 +354,32 @@ class EnvAnimate:
 
 
 if __name__ == '__main__':
-	# a = 1
-	# b = 1
-	# sigma = 0.5
-	# k = 1
-	# r = 1
-	# gamma = 0.9
-
-	# dt = 0.05
-	# theta_grid = 20
-	# v_max = 40
-	# v_grid = 20
-	# u_max = 15
-	# u_grid = 15
-
 	a = 1
 	b = 0.5
-	sigma = 20
+	sigma = 0.1
 	k = 1
-	r = 0.02
+	r = 0.01
 	gamma = 0.9
 
 	dt = 0.1
 	theta_grid = 15
 	v_max = 30
 	v_grid = 15
-	u_max = 10
+	u_max = 20
 	u_grid = 10
 
-	start_theta = 0
-	start_v = 10
-	episode_length = 500
-
-	# start_theta = random.uniform(-2,2)
-	# start_v = random.uniform(-20,20)
+	# start_theta = 0
+	# start_v = 10
 	# episode_length = 500
+
+	start_theta = random.uniform(-2,2)
+	start_v = random.uniform(-20,20)
+	episode_length = 500
 
 	VI_iteration = 80
 	PI_iteration = 80
 
-	plot_states = {(15,15),(10,10),(20,20)}
+	plot_states = {(15,15),(10,0),(20,20),(15,0),(0,20),(25,15)}
 
 	animation_1 = EnvAnimate(a = a, b = b, sigma = sigma, k = k, r = r, gamma = gamma, dt = dt, theta_grid = theta_grid, v_max = v_max, v_grid = v_grid, u_max = u_max, u_grid = u_grid, episode_length = episode_length)
 	animation_2 = EnvAnimate(a = a, b = b, sigma = sigma, k = k, r = r, gamma = gamma, dt = dt, theta_grid = theta_grid, v_max = v_max, v_grid = v_grid, u_max = u_max, u_grid = u_grid, episode_length = episode_length)
