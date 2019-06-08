@@ -15,12 +15,21 @@ import random
 import time
 from copy import deepcopy
 
+def plot_value(vi,pi,state):
+	plt.figure()
+	plt.plot(vi,label = 'Value Iteration')
+	plt.plot(pi,label = 'Policy Iteration')
+	plt.title('Value for state (Theta = {}, Velocity = {})'.format(round(state[0],2),round(state[1],2)))
+	plt.legend(loc = 'best')
+	plt.show(block = False)
+	# plt.pause(10000)
+
 class EnvAnimate:
 
 	'''
 	Initialize Inverted Pendulum
 	'''
-	def __init__(self, a = 1, b = 0.5, sigma = 1, k = 1, r = 1, gamma = 0.9, dt = 0.1, theta_grid = 20, v_max = 30, v_grid = 15, u_max = 10, u_grid = 10, episode_length = 500):
+	def __init__(self, a = 1, b = 0.6, sigma = 1, k = 1, r = 1, gamma = 0.9, dt = 0.1, theta_grid = 20, v_max = 30, v_grid = 15, u_max = 10, u_grid = 10, episode_length = 500):
 
 		# Change this to match your discretization
 		self.a = a 
@@ -80,6 +89,9 @@ class EnvAnimate:
 		self.pdfs = self.compute_pdfs()
 
 		self.cost = self.compute_cost()
+
+		self.v_vi = [np.zeros((self.theta_range,self.v_range))]
+		self.v_pi = [np.zeros((self.theta_range,self.v_range))]
 
 		print('finish init')
 
@@ -210,9 +222,10 @@ class EnvAnimate:
 		value_matrix = np.array(all_values)
 		new_value = np.min(value_matrix,axis = 0)
 		new_policy = np.argmin(value_matrix,axis = 0)
+		self.v_vi.append(new_value)
 		return new_value,new_policy
 
-	def do_value_iteration(self,iteration = 100):
+	def do_value_iteration(self,iteration = 40):
 		for _ in range(iteration):
 			new_value,new_policy = self.value_iteration()
 			self.value,self.policy_index = new_value,new_policy
@@ -225,6 +238,7 @@ class EnvAnimate:
 					u = self.policy[i,j]
 					new_value[i,j] = self.hamitonian(i,j,u)
 			self.value = new_value
+		self.v_pi.append(new_value)
 
 	def policy_improvement(self):
 		all_values = []
@@ -274,8 +288,8 @@ class EnvAnimate:
 			i,j = self.state_to_grid(current_state)
 			current_u = self.policy[i,j]
 			new_state = self.next_state(current_state,current_u)
-			theta.append(new_theta)
-			v.append(new_v)
+			theta.append(new_state[0])
+			v.append(new_state[1])
 			u.append(current_u)
 			current_state = new_state
 		return theta,v,u
@@ -320,6 +334,8 @@ class EnvAnimate:
 		plt.show()
 
 
+
+
 if __name__ == '__main__':
 	# a = 1
 	# b = 1
@@ -337,15 +353,15 @@ if __name__ == '__main__':
 
 	a = 1
 	b = 0.5
-	sigma = 1
+	sigma = 20
 	k = 1
-	r = 1
+	r = 0.02
 	gamma = 0.9
 
 	dt = 0.1
-	theta_grid = 20
-	v_max = 40
-	v_grid = 20
+	theta_grid = 15
+	v_max = 30
+	v_grid = 15
 	u_max = 10
 	u_grid = 10
 
@@ -357,10 +373,22 @@ if __name__ == '__main__':
 	# start_v = random.uniform(-20,20)
 	# episode_length = 500
 
-	VI_iteration = 100
-	PI_iteration = 100
+	VI_iteration = 80
+	PI_iteration = 80
 
-	animation = EnvAnimate(a = a, b = b, sigma = sigma, k = k, r = r, gamma = gamma, dt = dt, theta_grid = theta_grid, v_max = v_max, v_grid = v_grid, u_max = u_max, u_grid = u_grid, episode_length = episode_length)
+	plot_states = {(15,15),(10,10),(20,20)}
+
+	animation_1 = EnvAnimate(a = a, b = b, sigma = sigma, k = k, r = r, gamma = gamma, dt = dt, theta_grid = theta_grid, v_max = v_max, v_grid = v_grid, u_max = u_max, u_grid = u_grid, episode_length = episode_length)
+	animation_2 = EnvAnimate(a = a, b = b, sigma = sigma, k = k, r = r, gamma = gamma, dt = dt, theta_grid = theta_grid, v_max = v_max, v_grid = v_grid, u_max = u_max, u_grid = u_grid, episode_length = episode_length)
+	animation_1.do_value_iteration(iteration = VI_iteration)
+	animation_2.do_policy_iteration(iteration = PI_iteration)
+
+	v1 = np.array(animation_1.v_vi)
+	v2 = np.array(animation_2.v_pi)
+
+	for i,j in plot_states:
+		plot_value(v1[:,i,j],v2[:,i,j],animation_1.grid_to_state(i,j))
+	plt.pause(10000)
 
 
 
