@@ -193,8 +193,8 @@ def plot_policy(policy,on_policy,x_max,y_max):
 
 
 if __name__ == '__main__':
-	alpha = 0.3
-	gamma = 0.8
+	alpha = 0.25
+	gamma = 0.9
 	epsilon = 0.05
 	episodes = 500
 	time_stamp = 300
@@ -208,8 +208,8 @@ if __name__ == '__main__':
 	planner.find_optimal_policy()
 
 	# plot_q(q,on_policy)
-	plot_policy(planner.policy,on_policy,len(planner.policy[0]),len(planner.policy))
+	# plot_policy(planner.policy,on_policy,len(planner.policy[0]),len(planner.policy))
 
-	# traj = planner.rollout(env, policy=planner.policy, render=True)
-	# print(traj)
+	traj = planner.rollout(env, policy=planner.policy, render=True)
+	print(traj)
 
